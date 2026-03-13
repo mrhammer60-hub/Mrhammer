@@ -1,0 +1,94 @@
+/* ── CSS VARIABLES ── */
+:root {
+  --black:   #080808;
+  --carbon:  #111111;
+  --steel:   #1a1a1a;
+  --graphite:#242424;
+  --border:  #2a2a2a;
+  --muted:   #444;
+  --dim:     #888;
+  --text:    #c8c8c8;
+  --white:   #f0f0f0;
+  --accent:  #e8ff00;
+  --blue:    #00d4ff;
+  --orange:  #ff6b35;
+  --red:     #ff3b3b;
+  --green:   #00e676;
+}
+
+/* ── RESET ── */
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: 'Tajawal', sans-serif; }
+input  { font-family: 'Tajawal', sans-serif; }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--graphite); border-radius: 2px; }
+
+/* ── APP SHELL ── */
+.app {
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: var(--black);
+}
+
+/* ── PAGES ── */
+.pages-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+  display: none;
+  animation: fadeUp 0.3s ease;
+}
+.page.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ── UTILITIES ── */
+.section-label {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 12px;
+}

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>IronCoach — Trainee App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Tajawal:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ── TOP BAR ── -->
+  <div class="top-bar">
+    <div class="top-bar-user" onclick="openProfile()">
+      <div class="avatar">أ</div>
+      <div>
+        <div class="user-info-name">أحمد الراشد</div>
+        <div class="user-info-hint">اسحب يميناً للملف الشخصي</div>
+      </div>
+    </div>
+    <button class="chat-btn" onclick="openChat()">
+      <span>💬</span> كوتش
+    </button>
+  </div>
+
+  <!-- ── PAGES CONTAINER ── -->
+  <div class="pages-container" id="pagesContainer">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="home-hero">
+        <div class="home-greeting">مرحباً،</div>
+        <div class="home-name">أحمد الراشد 👋</div>
+        <div class="home-badges">
+          <span class="badge badge-accent">🔥 12 يوم متتالي</span>
+          <span class="badge badge-blue">Lean Bulk</span>
+        </div>
+      </div>
+      <div style="padding:16px 16px 0">
+        <div class="section-label">الإحصائيات</div>
+        <div class="home-grid" style="margin-bottom:16px">
+          <div class="stat-box"><div class="stat-val" style="color:var(--white)">82</div><div class="stat-lbl">الوزن kg</div></div>
+          <div class="stat-box"><div class="stat-val" style="color:var(--green)">25.9</div><div class="stat-lbl">BMI</div></div>
+          <div class="stat-box"><div class="stat-val" style="color:var(--orange)">18.2%</div><div class="stat-lbl">الدهون</div></div>
+        </div>
+        <div class="quick-card quick-card-workout" onclick="switchPage('workout')">
+          <div class="qc-top">
+            <div>
+              <div class="qc-tag">تمرين اليوم</div>
+              <div class="qc-title">يوم الصدر والكتف</div>
+              <div class="qc-sub">7 تمارين · 22 جولة · ~70 دقيقة</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+                <span class="badge badge-blue">الصدر</span>
+                <span class="badge badge-blue">الكتف</span>
+                <span class="badge badge-blue">الترايسبس</span>
+              </div>
+            </div>
+            <div class="qc-emoji">🏋️</div>
+          </div>
+          <button class="start-btn">ابدأ التمرين ←</button>
+        </div>
+        <div class="quick-card quick-card-nutrition" onclick="switchPage('nutrition')">
+          <div class="qc-top">
+            <div>
+              <div class="qc-tag" style="color:var(--green)">التغذية اليومية</div>
+              <div class="qc-title">2,850 <span style="font-size:14px;font-weight:400;color:var(--dim)">kcal</span></div>
+              <div class="qc-sub">5 وجبات · خيارات متعددة</div>
+            </div>
+            <div class="qc-emoji">🥗</div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-mini"><div class="macro-mini-val" style="color:var(--blue)">164g</div><div class="macro-mini-lbl">بروتين</div></div>
+            <div class="macro-mini"><div class="macro-mini-val" style="color:var(--accent)">310g</div><div class="macro-mini-lbl">كارب</div></div>
+            <div class="macro-mini"><div class="macro-mini-val" style="color:var(--orange)">79g</div><div class="macro-mini-lbl">دهون</div></div>
+          </div>
+        </div>
+        <div class="quick-card quick-card-progress" onclick="switchPage('progress')">
+          <div class="qc-top">
+            <div>
+              <div class="qc-tag" style="color:var(--green)">التطور والمقاسات</div>
+              <div class="qc-title">تتبع تقدمك</div>
+              <div class="qc-sub" style="color:var(--green)">↓ 3kg منذ البداية · BMI طبيعي</div>
+            </div>
+            <div class="qc-emoji">📈</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NUTRITION -->
+    <div class="page" id="page-nutrition">
+      <div class="nutrition-header">
+        <div class="nut-top-row">
+          <div>
+            <div class="nut-title">التغذية اليومية</div>
+            <div class="nut-name">خطة الغذاء</div>
+          </div>
+          <div class="nut-cal-total">
+            <div class="nut-cal-num" id="calConsumed">0</div>
+            <div class="nut-cal-max">/ 2,850 kcal</div>
+          </div>
+        </div>
+        <div class="cal-bar-wrap"><div class="cal-bar-fill" id="calBar" style="width:0%"></div></div>
+        <div class="macro-rings">
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+              <circle class="ring-track" cx="40" cy="40" r="34"/>
+              <circle class="ring-fill" id="ringP" cx="40" cy="40" r="34" stroke="var(--blue)" stroke-dasharray="0 213.6"/>
+              <text id="ringPText" x="40" y="39" text-anchor="middle" dominant-baseline="middle" fill="var(--white)" font-size="13" font-weight="700" style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
+              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle" fill="var(--blue)" font-size="8" style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
+            </svg>
+            <span class="ring-lbl">بروتين</span>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+              <circle class="ring-track" cx="40" cy="40" r="34"/>
+              <circle class="ring-fill" id="ringC" cx="40" cy="40" r="34" stroke="var(--accent)" stroke-dasharray="0 213.6"/>
+              <text id="ringCText" x="40" y="39" text-anchor="middle" dominant-baseline="middle" fill="var(--white)" font-size="13" font-weight="700" style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
+              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle" fill="var(--accent)" font-size="8" style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
+            </svg>
+            <span class="ring-lbl">كارب</span>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+              <circle class="ring-track" cx="40" cy="40" r="34"/>
+              <circle class="ring-fill" id="ringF" cx="40" cy="40" r="34" stroke="var(--orange)" stroke-dasharray="0 213.6"/>
+              <text id="ringFText" x="40" y="39" text-anchor="middle" dominant-baseline="middle" fill="var(--white)" font-size="13" font-weight="700" style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
+              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle" fill="var(--orange)" font-size="8" style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
+            </svg>
+            <span class="ring-lbl">دهون</span>
+          </div>
+        </div>
+        <div class="macro-nums">
+          <div class="macro-num-item"><span id="macroP" style="color:var(--blue);font-weight:700">0g</span> <span style="color:var(--dim)">/ 164g</span></div>
+          <div class="macro-num-item"><span id="macroC" style="color:var(--accent);font-weight:700">0g</span> <span style="color:var(--dim)">/ 310g</span></div>
+          <div class="macro-num-item"><span id="macroF" style="color:var(--orange);font-weight:700">0g</span> <span style="color:var(--dim)">/ 79g</span></div>
+        </div>
+      </div>
+      <div class="meals-list" id="mealsList"></div>
+    </div>
+
+    <!-- WORKOUT -->
+    <div class="page" id="page-workout">
+      <div class="workout-header">
+        <div class="wk-tag">تمرين اليوم</div>
+        <div class="wk-name">يوم الصدر والكتف</div>
+        <div class="wk-sub">Push Day — Chest & Shoulders</div>
+        <div class="wk-stats">
+          <div class="wk-stat"><div class="wk-stat-icon">💪</div><div class="wk-stat-val">7</div><div class="wk-stat-lbl">تمارين</div></div>
+          <div class="wk-stat"><div class="wk-stat-icon">🔄</div><div class="wk-stat-val">22</div><div class="wk-stat-lbl">جولات</div></div>
+          <div class="wk-stat"><div class="wk-stat-icon">⏱</div><div class="wk-stat-val">70</div><div class="wk-stat-lbl">دقيقة</div></div>
+        </div>
+        <div class="wk-muscles">
+          <span class="badge badge-blue">الصدر</span>
+          <span class="badge badge-blue">الكتف</span>
+          <span class="badge badge-blue">الترايسبس</span>
+        </div>
+        <div class="progress-row">
+          <div class="progress-top">
+            <span class="progress-lbl">التقدم</span>
+            <span class="progress-cnt" id="wkProgressText">0/7</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="wkProgressBar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="exercises-list" id="exercisesList"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="page" id="page-progress">
+      <div class="progress-header">
+        <div class="pr-tag">التطور والمقاسات</div>
+        <div class="pr-title">تتبع التقدم</div>
+      </div>
+      <div class="pr-content">
+        <div class="bmi-card card" style="border-color:rgba(0,230,118,0.3)">
+          <div class="bmi-inner">
+            <div class="bmi-left">
+              <div class="bmi-tag">مؤشر كتلة الجسم — BMI</div>
+              <div class="bmi-val-row">
+                <span class="bmi-val" style="color:var(--green)">25.9</span>
+                <span class="bmi-status" style="color:var(--green)">طبيعي</span>
+              </div>
+              <div class="bmi-sub">الوزن: 82kg · الطول: 178cm</div>
+            </div>
+            <svg width="80" height="80" viewBox="0 0 80 80" style="transform:rotate(-90deg)">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="7"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--green)" stroke-width="7" stroke-dasharray="141 213" stroke-linecap="round"/>
+              <text x="40" y="44" text-anchor="middle" fill="var(--white)" font-size="14" font-weight="800" style="transform:rotate(90deg);transform-origin:40px 40px">25.9</text>
+            </svg>
+          </div>
+          <div class="bmi-scale">
+            <div class="bmi-gradient"><div class="bmi-pointer" style="left:46%"></div></div>
+            <div class="bmi-scale-labels">
+              <span class="bmi-scale-lbl">نحيف &lt;18.5</span>
+              <span class="bmi-scale-lbl">طبيعي 18.5–25</span>
+              <span class="bmi-scale-lbl">زيادة 25–30</span>
+              <span class="bmi-scale-lbl">سمنة &gt;30</span>
+            </div>
+          </div>
+        </div>
+        <div class="body-comp-grid">
+          <div class="comp-card" style="border-color:rgba(0,212,255,0.25)">
+            <div class="comp-icon">💪</div>
+            <div class="comp-val" style="color:var(--blue)">67.1</div>
+            <div class="comp-unit" style="color:var(--blue)">kg</div>
+            <div class="comp-lbl">العضلات</div>
+            <div class="comp-delta" style="color:var(--green)">+0.3kg</div>
+          </div>
+          <div class="comp-card" style="border-color:rgba(255,107,53,0.25)">
+            <div class="comp-icon">🔥</div>
+            <div class="comp-val" style="color:var(--orange)">18.2</div>
+            <div class="comp-unit" style="color:var(--orange)">%</div>
+            <div class="comp-lbl">الدهون</div>
+            <div class="comp-delta" style="color:var(--green)">-0.3%</div>
+          </div>
+          <div class="comp-card" style="border-color:rgba(0,212,255,0.25)">
+            <div class="comp-icon">💧</div>
+            <div class="comp-val" style="color:var(--blue)">58.4</div>
+            <div class="comp-unit" style="color:var(--blue)">%</div>
+            <div class="comp-lbl">الماء</div>
+          </div>
+        </div>
+        <div class="wh-grid">
+          <div class="wh-card">
+            <div class="wh-lbl">الوزن</div>
+            <div><span class="wh-val" style="color:var(--white)">82</span> <span class="wh-unit">kg</span></div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">↓ 3kg منذ البداية</div>
+          </div>
+          <div class="wh-card">
+            <div class="wh-lbl">الطول</div>
+            <div><span class="wh-val" style="color:var(--blue)">178</span> <span class="wh-unit">cm</span></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-top">
+            <div class="chart-title">منحنى التقدم</div>
+            <div class="chart-btns">
+              <button class="chart-btn active" onclick="setChart('weight',this)">الوزن</button>
+              <button class="chart-btn" onclick="setChart('fat',this)">الدهون</button>
+              <button class="chart-btn" onclick="setChart('muscle',this)">العضلات</button>
+            </div>
+          </div>
+          <div class="chart-bars" id="chartBars"></div>
+        </div>
+        <div class="measurements-card">
+          <div class="measurements-header">📏 مقاسات الجسم</div>
+          <div class="measurement-row"><span class="measurement-icon">💪</span><span class="measurement-lbl">الصدر</span><span class="measurement-val">102</span><span class="measurement-unit">cm</span></div>
+          <div class="measurement-row"><span class="measurement-icon">〰️</span><span class="measurement-lbl">الخصر</span><span class="measurement-val">85</span><span class="measurement-unit">cm</span></div>
+          <div class="measurement-row"><span class="measurement-icon">🍑</span><span class="measurement-lbl">الأرداف</span><span class="measurement-val">96</span><span class="measurement-unit">cm</span></div>
+          <div class="measurement-row"><span class="measurement-icon">✊</span><span class="measurement-lbl">الذراع</span><span class="measurement-val">38</span><span class="measurement-unit">cm</span></div>
+          <div class="measurement-row"><span class="measurement-icon">🦵</span><span class="measurement-lbl">الفخذ</span><span class="measurement-val">58</span><span class="measurement-unit">cm</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE DETAIL OVERLAY -->
+    <div class="ex-detail-overlay" id="exDetailOverlay">
+      <div class="ex-detail-topbar">
+        <button class="back-btn" onclick="closeExDetail()">← رجوع</button>
+        <div class="timer-display">
+          <div class="timer-dot"></div>
+          <span class="timer-val" id="exTimer">00:00</span>
+        </div>
+        <button class="hist-btn" onclick="toggleHistory()">📊 السجل</button>
+      </div>
+      <div class="ex-detail-scroll">
+        <div class="ex-hero">
+          <div class="ex-hero-emoji" id="exHeroEmoji">🏋️</div>
+          <div class="ex-hero-video-badge">▶ فيديو توضيحي</div>
+          <div class="ex-hero-level-badge"><span class="badge badge-accent" id="exLevelBadge">advanced</span></div>
+        </div>
+        <div class="ex-detail-info">
+          <div class="ex-detail-name" id="exDetailName"></div>
+          <div class="ex-detail-en" id="exDetailEn"></div>
+          <div class="ex-detail-meta" id="exDetailMeta"></div>
+        </div>
+        <div class="history-box" id="historyBox">
+          <div class="hist-lbl">📅 الأسبوع الماضي</div>
+          <div class="hist-sets" id="histSets"></div>
+        </div>
+        <div class="sets-logger">
+          <div class="sets-logger-title">سجل الجولات</div>
+          <div class="sets-table">
+            <div class="sets-table-header">
+              <div class="sets-th">#</div>
+              <div class="sets-th">الوزن (kg)</div>
+              <div class="sets-th">التكرار</div>
+              <div class="sets-th">✓</div>
+            </div>
+            <div id="setsRows"></div>
+          </div>
+        </div>
+        <div class="rest-hint">
+          <span class="rest-hint-lbl">وقت الراحة بين الجولات</span>
+          <span class="rest-hint-val" id="exRestVal">90s</span>
+        </div>
+        <button class="complete-ex-btn" onclick="completeExercise()">✓ إنهاء التمرين</button>
+      </div>
+    </div>
+
+    <!-- CHAT OVERLAY -->
+    <div class="chat-overlay" id="chatOverlay">
+      <div class="chat-topbar">
+        <button class="chat-back" onclick="closeChat()">←</button>
+        <div class="coach-avatar">K</div>
+        <div>
+          <div class="coach-name">Coach Khaled</div>
+          <div class="coach-status">● متصل الآن</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="اكتب رسالة..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="send-btn" onclick="sendMsg()">↑</button>
+      </div>
+    </div>
+
+  </div><!-- /pages-container -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="switchPage('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">الرئيسية</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" id="nav-workout" onclick="switchPage('workout')">
+      <span class="nav-icon">💪</span>
+      <span class="nav-label">التمرين</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" id="nav-nutrition" onclick="switchPage('nutrition')">
+      <span class="nav-icon">🥗</span>
+      <span class="nav-label">التغذية</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" id="nav-progress" onclick="switchPage('progress')">
+      <span class="nav-icon">📈</span>
+      <span class="nav-label">التطور</span>
+      <div class="nav-dot"></div>
+    </button>
+  </div>
+
+  <!-- PROFILE PANEL -->
+  <div class="profile-overlay" id="profileOverlay">
+    <div class="profile-backdrop" onclick="closeProfile()"></div>
+    <div class="profile-panel">
+      <button class="profile-close" onclick="closeProfile()">✕</button>
+      <div class="profile-inner">
+        <div class="profile-avatar-wrap">
+          <div class="profile-big-avatar">أ</div>
+          <div class="profile-name">أحمد الراشد</div>
+          <div class="profile-sub">Ahmed Al-Rashid</div>
+          <span class="badge badge-accent">PPL — Week 3</span>
+        </div>
+        <div class="profile-info-row"><span class="profile-info-lbl">العمر</span><span class="profile-info-val">26 سنة</span></div>
+        <div class="profile-info-row"><span class="profile-info-lbl">الوزن</span><span class="profile-info-val">82 kg</span></div>
+        <div class="profile-info-row"><span class="profile-info-lbl">الطول</span><span class="profile-info-val">178 cm</span></div>
+        <div class="profile-info-row"><span class="profile-info-lbl">الهدف</span><span class="profile-info-val">Lean Bulk</span></div>
+        <div class="profile-info-row"><span class="profile-info-lbl">الكوتش</span><span class="profile-info-val">Coach Khaled</span></div>
+        <div class="profile-actions">
+          <button class="profile-action">📋 تعديل الملف الشخصي</button>
+          <button class="profile-action">🔔 الإشعارات</button>
+          <button class="profile-action">🌐 اللغة / Language</button>
+          <button class="profile-action highlight">💳 الاشتراك</button>
+          <button class="profile-action">🔐 تغيير كلمة المرور</button>
+          <button class="profile-action danger">🚪 تسجيل الخروج</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script src="js/data.js"></script>
+<script src="js/nutrition.js"></script>
+<script src="js/workout.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
