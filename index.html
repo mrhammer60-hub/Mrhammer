@@ -2,22 +2,686 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#080808">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>IronCoach — Trainee App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Tajawal:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/pages.css">
+<style>
+:root {
+  --black: #080808;
+  --carbon: #111111;
+  --steel: #1a1a1a;
+  --graphite: #242424;
+  --border: #2a2a2a;
+  --muted: #444;
+  --dim: #888;
+  --text: #c8c8c8;
+  --white: #f0f0f0;
+  --accent: #e8ff00;
+  --blue: #00d4ff;
+  --orange: #ff6b35;
+  --red: #ff3b3b;
+  --green: #00e676;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app {
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: var(--black);
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  position: relative;
+  z-index: 50;
+  background: rgba(8,8,8,0.96);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.top-bar-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 900; color: var(--black);
+  flex-shrink: 0;
+}
+.user-info-name { font-size: 14px; font-weight: 700; color: var(--white); }
+.user-info-hint { font-size: 10px; color: var(--dim); }
+
+.chat-btn {
+  background: var(--graphite);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  color: var(--white); font-size: 13px; font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  transition: all 0.2s;
+}
+.chat-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PAGES ── */
+.pages-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+  display: none;
+  animation: fadeUp 0.3s ease;
+}
+.page.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: relative;
+  z-index: 50;
+  background: rgba(8,8,8,0.97);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 16px;
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 16px; position: relative;
+}
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; color: var(--dim); font-family: 'Tajawal', sans-serif; font-weight: 500; transition: color 0.2s; }
+.nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity 0.2s; }
+.nav-btn.active .nav-label { color: var(--accent); font-weight: 700; }
+.nav-btn.active .nav-dot { opacity: 1; }
+
+/* ── UTILITIES ── */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 3px 9px; border-radius: 6px;
+  font-family: 'Tajawal', sans-serif;
+}
+.badge-accent { background: rgba(232,255,0,0.12); border: 1px solid rgba(232,255,0,0.3); color: var(--accent); }
+.badge-blue   { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); color: var(--blue); }
+.badge-orange { background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.3); color: var(--orange); }
+.badge-green  { background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.3); color: var(--green); }
+.badge-muted  { background: rgba(68,68,68,0.3); border: 1px solid var(--border); color: var(--dim); }
+
+.section-label {
+  font-size: 10px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 12px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--carbon);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.card-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.card-body { padding: 16px 18px; }
+
+/* ── HOME PAGE ── */
+.home-hero {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a0a 60%, #0d0d0d 100%);
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.home-greeting { font-size: 12px; color: var(--dim); margin-bottom: 2px; }
+.home-name { font-size: 26px; font-weight: 900; color: var(--white); margin-bottom: 10px; }
+.home-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.home-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.stat-box {
+  background: var(--carbon); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 8px; text-align: center;
+  transition: border-color 0.2s;
+}
+.stat-box:hover { border-color: var(--accent); }
+.stat-val { font-size: 22px; font-weight: 900; }
+.stat-lbl { font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+.quick-card {
+  border-radius: 18px; padding: 20px;
+  border: 1px solid var(--border);
+  margin-bottom: 12px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.quick-card:hover { transform: translateY(-2px); }
+.quick-card-workout {
+  background: linear-gradient(135deg, #0a0a1a, #1a1a0a);
+  border-color: rgba(232,255,0,0.3);
+}
+.quick-card-nutrition { background: var(--carbon); }
+.quick-card-progress { background: var(--carbon); }
+
+.qc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.qc-emoji { font-size: 44px; }
+.qc-tag { font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.qc-title { font-size: 18px; font-weight: 800; color: var(--white); }
+.qc-sub { font-size: 12px; color: var(--dim); margin-top: 4px; }
+
+.start-btn {
+  width: 100%; background: linear-gradient(135deg, var(--accent), var(--orange));
+  border: none; border-radius: 12px; padding: 12px;
+  font-size: 15px; font-weight: 800; color: var(--black);
+  cursor: pointer; font-family: 'Tajawal', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.macro-row { display: flex; justify-content: space-around; }
+.macro-mini { text-align: center; }
+.macro-mini-val { font-size: 16px; font-weight: 700; }
+.macro-mini-lbl { font-size: 10px; color: var(--dim); }
+
+/* ── NUTRITION PAGE ── */
+.nutrition-header {
+  background: linear-gradient(135deg, #111 0%, #1a1a0a 100%);
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.nut-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.nut-title { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+.nut-name { font-size: 18px; font-weight: 700; color: var(--white); }
+.nut-cal-total { text-align: left; }
+.nut-cal-num { font-size: 30px; font-weight: 900; color: var(--accent); line-height: 1; }
+.nut-cal-max { font-size: 10px; color: var(--dim); }
+
+.cal-bar-wrap { background: var(--border); border-radius: 999px; height: 6px; overflow: hidden; margin-bottom: 20px; }
+.cal-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--orange)); border-radius: 999px; transition: width 0.6s ease; }
+
+.macro-rings { display: flex; justify-content: space-around; margin-bottom: 4px; }
+.ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ring-lbl { font-size: 11px; color: var(--dim); }
+
+.macro-nums { display: flex; justify-content: space-around; margin-top: 8px; }
+.macro-num-item { text-align: center; font-size: 12px; }
+
+.meals-list { padding: 16px 16px 0; }
+
+.meal-card {
+  background: var(--carbon); border: 1px solid var(--border);
+  border-radius: 16px; margin-bottom: 12px; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.meal-card.has-selection { border-color: rgba(232,255,0,0.3); }
+
+.meal-header {
+  padding: 14px 16px; display: flex;
+  align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+}
+.meal-header:hover { background: rgba(255,255,255,0.02); }
+.meal-info-name { font-size: 15px; font-weight: 700; color: var(--white); }
+.meal-info-sub { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.meal-right { display: flex; align-items: center; gap: 10px; }
+.meal-kcal-badge {
+  background: rgba(232,255,0,0.1); border: 1px solid rgba(232,255,0,0.25);
+  border-radius: 8px; padding: 4px 10px;
+  font-size: 12px; color: var(--accent); font-weight: 700;
+}
+.meal-chevron { color: var(--dim); font-size: 12px; transition: transform 0.25s; }
+.meal-chevron.open { transform: rotate(180deg); }
+
+.meal-options {
+  border-top: 1px solid var(--border);
+  padding: 12px 14px 14px;
+  display: none;
+}
+.meal-options.open { display: block; }
+
+.opt-section-label { font-size: 10px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+
+.option-card {
+  border: 1px solid var(--border); background: var(--steel);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+.option-card:last-child { margin-bottom: 0; }
+.option-card:hover { border-color: rgba(232,255,0,0.3); background: rgba(232,255,0,0.03); }
+.option-card.selected { border-color: var(--accent); background: rgba(232,255,0,0.06); }
+
+.opt-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.opt-radio-wrap { display: flex; align-items: center; gap: 8px; }
+.opt-radio {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--muted); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.opt-radio.checked { border-color: var(--accent); background: var(--accent); }
+.opt-radio-inner { width: 8px; height: 8px; border-radius: 50%; background: var(--black); display: none; }
+.opt-radio.checked .opt-radio-inner { display: block; }
+.opt-name { font-size: 13px; font-weight: 700; color: var(--white); }
+.opt-kcal { font-size: 14px; font-weight: 700; color: var(--accent); }
+
+.opt-macros { display: flex; gap: 12px; margin-bottom: 8px; }
+.opt-macro { font-size: 11px; }
+
+.opt-foods { display: flex; flex-wrap: wrap; gap: 5px; }
+.food-tag { font-size: 11px; color: var(--dim); background: var(--graphite); border-radius: 6px; padding: 2px 8px; }
+
+/* ── WORKOUT PAGE ── */
+.workout-header {
+  background: linear-gradient(135deg, #0a0a1a 0%, #111 100%);
+  padding: 24px 20px 20px; border-bottom: 1px solid var(--border);
+}
+.wk-tag { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.wk-name { font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 4px; }
+.wk-sub { font-size: 12px; color: var(--dim); margin-bottom: 16px; }
+
+.wk-stats { display: flex; gap: 10px; margin-bottom: 14px; }
+.wk-stat { flex: 1; background: var(--graphite); border-radius: 12px; padding: 12px 8px; text-align: center; }
+.wk-stat-icon { font-size: 18px; }
+.wk-stat-val { font-size: 18px; font-weight: 800; color: var(--white); line-height: 1.2; }
+.wk-stat-lbl { font-size: 9px; color: var(--dim); }
+
+.wk-muscles { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+
+.progress-row { }
+.progress-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.progress-lbl { font-size: 11px; color: var(--dim); }
+.progress-cnt { font-size: 11px; color: var(--accent); font-weight: 700; }
+.progress-bar-wrap { background: var(--border); border-radius: 999px; height: 5px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 999px; transition: width 0.4s ease; }
+
+.exercises-list { padding: 16px 16px 0; }
+
+.ex-card {
+  background: var(--carbon); border: 1px solid var(--border);
+  border-radius: 16px; margin-bottom: 10px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: all 0.2s;
+}
+.ex-card:hover:not(.done) { border-color: rgba(232,255,0,0.4); background: rgba(232,255,0,0.03); transform: translateX(-2px); }
+.ex-card.done { background: rgba(232,255,0,0.05); border-color: rgba(232,255,0,0.25); opacity: 0.7; cursor: default; }
+.ex-emoji { font-size: 36px; width: 48px; text-align: center; flex-shrink: 0; }
+.ex-info { flex: 1; }
+.ex-info-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.ex-name-ar { font-size: 15px; font-weight: 700; color: var(--white); }
+.ex-done-check { font-size: 18px; color: var(--green); }
+.ex-name-en { font-size: 12px; color: var(--dim); margin-bottom: 8px; }
+.ex-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── EXERCISE DETAIL (modal-like overlay) ── */
+.ex-detail-overlay {
+  position: absolute; inset: 0; z-index: 80;
+  background: var(--black); display: none;
+  flex-direction: column; overflow: hidden;
+  animation: fadeUp 0.25s ease;
+}
+.ex-detail-overlay.open { display: flex; }
+
+.ex-detail-topbar {
+  background: var(--carbon); border-bottom: 1px solid var(--border);
+  padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.back-btn {
+  background: var(--graphite); border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 14px; color: var(--text); font-size: 13px; cursor: pointer;
+  font-family: 'Tajawal', sans-serif; transition: all 0.2s;
+}
+.back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.timer-display {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--graphite); border: 1px solid rgba(232,255,0,0.3);
+  border-radius: 10px; padding: 6px 14px;
+}
+.timer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.timer-val { color: var(--accent); font-weight: 700; font-size: 16px; font-family: 'JetBrains Mono', monospace; }
+
+.hist-btn {
+  background: var(--graphite); border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 12px; color: var(--dim); font-size: 12px; cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.ex-detail-scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+
+.ex-hero {
+  background: linear-gradient(135deg, #1a1a0a, #0a0a1a);
+  height: 200px; display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.ex-hero-emoji { font-size: 80px; }
+.ex-hero-video-badge {
+  position: absolute; bottom: 12px; left: 16px;
+  background: rgba(8,8,8,0.85); border: 1px solid rgba(232,255,0,0.3);
+  border-radius: 8px; padding: 5px 12px; font-size: 11px; color: var(--accent);
+}
+.ex-hero-level-badge { position: absolute; bottom: 12px; right: 16px; }
+
+.ex-detail-info { padding: 16px 18px 0; }
+.ex-detail-name { font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 2px; }
+.ex-detail-en { font-size: 13px; color: var(--dim); margin-bottom: 10px; }
+.ex-detail-meta { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+
+.history-box {
+  margin: 0 18px 14px; background: var(--carbon);
+  border: 1px solid rgba(232,255,0,0.25); border-radius: 12px; padding: 14px;
+  display: none;
+}
+.history-box.open { display: block; }
+.hist-lbl { font-size: 10px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+.hist-sets { display: flex; gap: 8px; }
+.hist-set { flex: 1; background: var(--graphite); border-radius: 8px; padding: 8px 6px; text-align: center; }
+.hist-set-num { font-size: 10px; color: var(--dim); margin-bottom: 4px; }
+.hist-set-w { font-size: 14px; font-weight: 700; color: var(--white); }
+.hist-set-r { font-size: 11px; color: var(--blue); }
+
+.sets-logger { padding: 0 18px; }
+.sets-logger-title { font-size: 10px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+
+.sets-table { background: var(--carbon); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.sets-table-header {
+  display: grid; grid-template-columns: 38px 1fr 1fr 44px;
+  padding: 10px 14px; gap: 8px; border-bottom: 1px solid var(--border);
+}
+.sets-th { font-size: 10px; color: var(--dim); text-align: center; font-family: 'JetBrains Mono', monospace; }
+.set-row {
+  display: grid; grid-template-columns: 38px 1fr 1fr 44px;
+  padding: 10px 14px; gap: 8px; align-items: center;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.set-row:last-child { border-bottom: none; }
+.set-row.set-done { background: rgba(232,255,0,0.05); }
+.set-num { font-size: 14px; font-weight: 700; color: var(--muted); text-align: center; transition: color 0.2s; }
+.set-row.set-done .set-num { color: var(--accent); }
+
+.set-input-wrap { position: relative; }
+.set-input {
+  width: 100%; background: var(--graphite); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 8px; color: var(--white);
+  font-size: 15px; font-weight: 700; text-align: center; outline: none;
+  font-family: 'Tajawal', sans-serif; transition: border-color 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.set-input:focus { border-color: var(--accent); }
+.set-input.done { border-color: rgba(232,255,0,0.4); }
+.set-prev { font-size: 9px; color: var(--dim); text-align: center; margin-top: 3px; }
+
+.set-check-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 2px solid var(--border); background: var(--graphite);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; margin: auto;
+}
+.set-check-btn.checked { border-color: var(--accent); background: var(--accent); }
+
+.rest-hint {
+  margin: 12px 18px; background: var(--steel); border-radius: 10px;
+  padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+}
+.rest-hint-lbl { font-size: 12px; color: var(--dim); }
+.rest-hint-val { font-size: 14px; font-weight: 700; color: var(--blue); }
+
+.complete-ex-btn {
+  margin: 12px 18px 20px; width: calc(100% - 36px);
+  background: linear-gradient(135deg, var(--accent), var(--orange));
+  border: none; border-radius: 14px; padding: 16px;
+  font-size: 16px; font-weight: 800; color: var(--black);
+  cursor: pointer; font-family: 'Tajawal', sans-serif;
+  letter-spacing: 0.5px; transition: opacity 0.2s;
+}
+.complete-ex-btn:hover { opacity: 0.9; }
+
+/* ── PROGRESS PAGE ── */
+.progress-header {
+  background: linear-gradient(135deg, #0a1a0a 0%, #111 100%);
+  padding: 24px 20px 20px; border-bottom: 1px solid var(--border);
+}
+.pr-tag { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.pr-title { font-size: 20px; font-weight: 800; color: var(--white); }
+
+.pr-content { padding: 16px 16px 0; }
+
+.bmi-card {
+  background: var(--carbon); border-radius: 16px; padding: 18px; margin-bottom: 12px;
+  transition: border-color 0.3s;
+}
+.bmi-inner { display: flex; justify-content: space-between; align-items: center; }
+.bmi-left { }
+.bmi-tag { font-size: 10px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.bmi-val-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.bmi-val { font-size: 52px; font-weight: 900; line-height: 1; }
+.bmi-status { font-size: 16px; font-weight: 700; }
+.bmi-sub { font-size: 12px; color: var(--dim); }
+
+.bmi-scale { margin-top: 14px; }
+.bmi-gradient { height: 6px; border-radius: 999px; background: linear-gradient(90deg, #00d4ff, #00e676, #e8ff00, #ff6b35, #ff3b3b); position: relative; }
+.bmi-pointer {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 12px; height: 12px; border-radius: 50%; background: white;
+  margin-left: -6px; transition: left 0.5s ease;
+}
+.bmi-scale-labels { display: flex; justify-content: space-between; margin-top: 6px; }
+.bmi-scale-lbl { font-size: 9px; color: var(--dim); }
+
+.body-comp-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.comp-card {
+  background: var(--carbon); border-radius: 14px; padding: 14px 10px; text-align: center;
+  border: 1px solid var(--border); transition: border-color 0.2s;
+}
+.comp-icon { font-size: 22px; margin-bottom: 4px; }
+.comp-val { font-size: 22px; font-weight: 900; line-height: 1.2; }
+.comp-unit { font-size: 10px; margin-bottom: 4px; }
+.comp-lbl { font-size: 11px; color: var(--dim); }
+.comp-delta { font-size: 10px; margin-top: 4px; }
+
+.wh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.wh-card { background: var(--carbon); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.wh-lbl { font-size: 11px; color: var(--dim); margin-bottom: 6px; }
+.wh-val { font-size: 32px; font-weight: 900; }
+.wh-unit { font-size: 12px; color: var(--dim); }
+
+.chart-card { background: var(--carbon); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.chart-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.chart-title { font-size: 14px; font-weight: 700; color: var(--white); }
+.chart-btns { display: flex; gap: 6px; }
+.chart-btn {
+  padding: 4px 10px; border-radius: 8px; font-size: 10px; cursor: pointer;
+  border: 1px solid var(--border); background: transparent; color: var(--dim);
+  font-family: 'Tajawal', sans-serif; transition: all 0.2s;
+}
+.chart-btn.active { border-color: var(--accent); background: rgba(232,255,0,0.1); color: var(--accent); }
+
+.chart-bars { height: 80px; display: flex; align-items: flex-end; gap: 4px; }
+.chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.chart-bar-val { font-size: 9px; color: var(--dim); }
+.chart-bar { width: 80%; border-radius: 4px 4px 0 0; transition: height 0.5s ease, background 0.3s; min-height: 4px; }
+.chart-bar-date { font-size: 8px; color: var(--dim); text-align: center; }
+
+.measurements-card { background: var(--carbon); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+.measurements-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; color: var(--white); }
+.measurement-row {
+  display: flex; align-items: center; padding: 12px 16px;
+  border-bottom: 1px solid var(--border); transition: background 0.15s;
+}
+.measurement-row:last-child { border-bottom: none; }
+.measurement-row:hover { background: var(--graphite); }
+.measurement-icon { font-size: 20px; width: 32px; }
+.measurement-lbl { flex: 1; color: var(--text); font-size: 14px; }
+.measurement-val { font-size: 20px; font-weight: 700; color: var(--white); }
+.measurement-unit { font-size: 12px; color: var(--dim); margin-right: 4px; }
+
+/* ── CHAT PAGE ── */
+.chat-overlay {
+  position: absolute; inset: 0; z-index: 90;
+  background: var(--black); display: none; flex-direction: column;
+}
+.chat-overlay.open { display: flex; }
+
+.chat-topbar {
+  background: var(--carbon); border-bottom: 1px solid var(--border);
+  padding: 14px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.chat-back { background: none; border: none; color: var(--accent); font-size: 22px; cursor: pointer; }
+.coach-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: var(--black);
+}
+.coach-name { font-size: 15px; font-weight: 700; color: var(--white); }
+.coach-status { font-size: 11px; color: var(--green); }
+
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg-wrap { display: flex; }
+.msg-wrap.me { justify-content: flex-start; }
+.msg-wrap.coach { justify-content: flex-end; }
+.msg-bubble {
+  max-width: 75%; padding: 10px 14px; border-radius: 18px;
+  font-size: 14px; line-height: 1.5;
+}
+.msg-wrap.me .msg-bubble { background: var(--accent); color: var(--black); border-radius: 18px 18px 18px 4px; }
+.msg-wrap.coach .msg-bubble { background: var(--graphite); color: var(--white); border-radius: 18px 18px 4px 18px; }
+.msg-time { font-size: 10px; color: var(--dim); margin-top: 4px; }
+.msg-wrap.me .msg-time { text-align: right; }
+.msg-wrap.coach .msg-time { text-align: left; }
+
+.chat-input-row {
+  padding: 12px 16px; background: var(--carbon);
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; flex-shrink: 0;
+}
+.chat-input {
+  flex: 1; background: var(--graphite); border: 1px solid var(--border);
+  border-radius: 24px; padding: 12px 18px; color: var(--white); font-size: 14px;
+  outline: none; font-family: 'Tajawal', sans-serif;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: rgba(232,255,0,0.4); }
+.send-btn {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--accent); border: none;
+  color: var(--black); font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s;
+}
+.send-btn:active { transform: scale(0.92); }
+
+/* ── PROFILE PANEL ── */
+.profile-overlay {
+  position: absolute; inset: 0; z-index: 100;
+  display: none; pointer-events: none;
+}
+.profile-overlay.open { display: flex; pointer-events: all; }
+.profile-backdrop { flex: 1; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); cursor: pointer; }
+.profile-panel {
+  width: 85%; max-width: 360px;
+  background: var(--carbon); height: 100%; overflow-y: auto;
+  border-right: 1px solid var(--border);
+  animation: slideInLeft 0.3s ease;
+}
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.profile-close {
+  position: absolute; top: 18px; left: 18px;
+  background: var(--graphite); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px;
+  color: var(--dim); cursor: pointer; font-family: 'Tajawal', sans-serif;
+  font-size: 14px; z-index: 1;
+}
+.profile-inner { padding: 52px 24px 24px; }
+.profile-avatar-wrap { text-align: center; margin-bottom: 24px; }
+.profile-big-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 900; color: var(--black);
+  margin: 0 auto 12px;
+}
+.profile-name { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.profile-sub { font-size: 12px; color: var(--dim); margin-bottom: 10px; }
+
+.profile-info-row {
+  display: flex; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.profile-info-lbl { color: var(--dim); font-size: 13px; }
+.profile-info-val { color: var(--white); font-size: 13px; font-weight: 600; }
+
+.profile-actions { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+.profile-action {
+  background: var(--steel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px; text-align: right;
+  font-size: 14px; cursor: pointer; width: 100%;
+  font-family: 'Tajawal', sans-serif; transition: all 0.2s;
+}
+.profile-action:hover { border-color: rgba(232,255,0,0.3); }
+.profile-action.danger { color: var(--red); }
+.profile-action.danger:hover { border-color: rgba(255,59,59,0.3); }
+.profile-action.highlight { color: var(--accent); }
+.profile-action.highlight:hover { border-color: var(--accent); }
+
+/* SVG Ring helper */
+.ring-svg { transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--border); stroke-width: 6; }
+.ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dasharray 0.8s cubic-bezier(.4,0,.2,1); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--graphite); border-radius: 2px; }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+</style>
 </head>
 <body>
 
 <div class="app" id="app">
 
-  <!-- ── TOP BAR ── -->
+  <!-- TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-user" onclick="openProfile()">
       <div class="avatar">أ</div>
@@ -31,10 +695,10 @@
     </button>
   </div>
 
-  <!-- ── PAGES CONTAINER ── -->
+  <!-- PAGES CONTAINER -->
   <div class="pages-container" id="pagesContainer">
 
-    <!-- HOME -->
+    <!-- ══ HOME PAGE ══ -->
     <div class="page active" id="page-home">
       <div class="home-hero">
         <div class="home-greeting">مرحباً،</div>
@@ -44,6 +708,7 @@
           <span class="badge badge-blue">Lean Bulk</span>
         </div>
       </div>
+
       <div style="padding:16px 16px 0">
         <div class="section-label">الإحصائيات</div>
         <div class="home-grid" style="margin-bottom:16px">
@@ -51,6 +716,8 @@
           <div class="stat-box"><div class="stat-val" style="color:var(--green)">25.9</div><div class="stat-lbl">BMI</div></div>
           <div class="stat-box"><div class="stat-val" style="color:var(--orange)">18.2%</div><div class="stat-lbl">الدهون</div></div>
         </div>
+
+        <!-- Workout card -->
         <div class="quick-card quick-card-workout" onclick="switchPage('workout')">
           <div class="qc-top">
             <div>
@@ -67,6 +734,8 @@
           </div>
           <button class="start-btn">ابدأ التمرين ←</button>
         </div>
+
+        <!-- Nutrition card -->
         <div class="quick-card quick-card-nutrition" onclick="switchPage('nutrition')">
           <div class="qc-top">
             <div>
@@ -82,6 +751,8 @@
             <div class="macro-mini"><div class="macro-mini-val" style="color:var(--orange)">79g</div><div class="macro-mini-lbl">دهون</div></div>
           </div>
         </div>
+
+        <!-- Progress card -->
         <div class="quick-card quick-card-progress" onclick="switchPage('progress')">
           <div class="qc-top">
             <div>
@@ -95,7 +766,7 @@
       </div>
     </div>
 
-    <!-- NUTRITION -->
+    <!-- ══ NUTRITION PAGE ══ -->
     <div class="page" id="page-nutrition">
       <div class="nutrition-header">
         <div class="nut-top-row">
@@ -114,8 +785,12 @@
             <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
               <circle class="ring-track" cx="40" cy="40" r="34"/>
               <circle class="ring-fill" id="ringP" cx="40" cy="40" r="34" stroke="var(--blue)" stroke-dasharray="0 213.6"/>
-              <text id="ringPText" x="40" y="39" text-anchor="middle" dominant-baseline="middle" fill="var(--white)" font-size="13" font-weight="700" style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
-              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle" fill="var(--blue)" font-size="8" style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
+              <text id="ringPText" x="40" y="39" text-anchor="middle" dominant-baseline="middle"
+                fill="var(--white)" font-size="13" font-weight="700"
+                style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
+              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle"
+                fill="var(--blue)" font-size="8"
+                style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
             </svg>
             <span class="ring-lbl">بروتين</span>
           </div>
@@ -123,8 +798,12 @@
             <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
               <circle class="ring-track" cx="40" cy="40" r="34"/>
               <circle class="ring-fill" id="ringC" cx="40" cy="40" r="34" stroke="var(--accent)" stroke-dasharray="0 213.6"/>
-              <text id="ringCText" x="40" y="39" text-anchor="middle" dominant-baseline="middle" fill="var(--white)" font-size="13" font-weight="700" style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
-              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle" fill="var(--accent)" font-size="8" style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
+              <text id="ringCText" x="40" y="39" text-anchor="middle" dominant-baseline="middle"
+                fill="var(--white)" font-size="13" font-weight="700"
+                style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
+              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle"
+                fill="var(--accent)" font-size="8"
+                style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
             </svg>
             <span class="ring-lbl">كارب</span>
           </div>
@@ -132,8 +811,12 @@
             <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
               <circle class="ring-track" cx="40" cy="40" r="34"/>
               <circle class="ring-fill" id="ringF" cx="40" cy="40" r="34" stroke="var(--orange)" stroke-dasharray="0 213.6"/>
-              <text id="ringFText" x="40" y="39" text-anchor="middle" dominant-baseline="middle" fill="var(--white)" font-size="13" font-weight="700" style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
-              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle" fill="var(--orange)" font-size="8" style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
+              <text id="ringFText" x="40" y="39" text-anchor="middle" dominant-baseline="middle"
+                fill="var(--white)" font-size="13" font-weight="700"
+                style="transform:rotate(90deg);transform-origin:40px 40px">0</text>
+              <text x="40" y="52" text-anchor="middle" dominant-baseline="middle"
+                fill="var(--orange)" font-size="8"
+                style="transform:rotate(90deg);transform-origin:40px 40px">g</text>
             </svg>
             <span class="ring-lbl">دهون</span>
           </div>
@@ -144,10 +827,11 @@
           <div class="macro-num-item"><span id="macroF" style="color:var(--orange);font-weight:700">0g</span> <span style="color:var(--dim)">/ 79g</span></div>
         </div>
       </div>
+
       <div class="meals-list" id="mealsList"></div>
     </div>
 
-    <!-- WORKOUT -->
+    <!-- ══ WORKOUT PAGE ══ -->
     <div class="page" id="page-workout">
       <div class="workout-header">
         <div class="wk-tag">تمرين اليوم</div>
@@ -174,14 +858,16 @@
       <div class="exercises-list" id="exercisesList"></div>
     </div>
 
-    <!-- PROGRESS -->
+    <!-- ══ PROGRESS PAGE ══ -->
     <div class="page" id="page-progress">
       <div class="progress-header">
         <div class="pr-tag">التطور والمقاسات</div>
         <div class="pr-title">تتبع التقدم</div>
       </div>
       <div class="pr-content">
-        <div class="bmi-card card" style="border-color:rgba(0,230,118,0.3)">
+
+        <!-- BMI -->
+        <div class="bmi-card card" id="bmiCard" style="border-color: rgba(0,230,118,0.3)">
           <div class="bmi-inner">
             <div class="bmi-left">
               <div class="bmi-tag">مؤشر كتلة الجسم — BMI</div>
@@ -193,12 +879,16 @@
             </div>
             <svg width="80" height="80" viewBox="0 0 80 80" style="transform:rotate(-90deg)">
               <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="7"/>
-              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--green)" stroke-width="7" stroke-dasharray="141 213" stroke-linecap="round"/>
-              <text x="40" y="44" text-anchor="middle" fill="var(--white)" font-size="14" font-weight="800" style="transform:rotate(90deg);transform-origin:40px 40px">25.9</text>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--green)" stroke-width="7"
+                stroke-dasharray="141 213" stroke-linecap="round"/>
+              <text x="40" y="44" text-anchor="middle" fill="var(--white)" font-size="14" font-weight="800"
+                style="transform:rotate(90deg);transform-origin:40px 40px">25.9</text>
             </svg>
           </div>
           <div class="bmi-scale">
-            <div class="bmi-gradient"><div class="bmi-pointer" style="left:46%"></div></div>
+            <div class="bmi-gradient">
+              <div class="bmi-pointer" style="left:46%"></div>
+            </div>
             <div class="bmi-scale-labels">
               <span class="bmi-scale-lbl">نحيف &lt;18.5</span>
               <span class="bmi-scale-lbl">طبيعي 18.5–25</span>
@@ -207,6 +897,8 @@
             </div>
           </div>
         </div>
+
+        <!-- Body Composition -->
         <div class="body-comp-grid">
           <div class="comp-card" style="border-color:rgba(0,212,255,0.25)">
             <div class="comp-icon">💪</div>
@@ -229,6 +921,8 @@
             <div class="comp-lbl">الماء</div>
           </div>
         </div>
+
+        <!-- Weight & Height -->
         <div class="wh-grid">
           <div class="wh-card">
             <div class="wh-lbl">الوزن</div>
@@ -240,6 +934,8 @@
             <div><span class="wh-val" style="color:var(--blue)">178</span> <span class="wh-unit">cm</span></div>
           </div>
         </div>
+
+        <!-- Chart -->
         <div class="chart-card">
           <div class="chart-top">
             <div class="chart-title">منحنى التقدم</div>
@@ -251,6 +947,8 @@
           </div>
           <div class="chart-bars" id="chartBars"></div>
         </div>
+
+        <!-- Measurements -->
         <div class="measurements-card">
           <div class="measurements-header">📏 مقاسات الجسم</div>
           <div class="measurement-row"><span class="measurement-icon">💪</span><span class="measurement-lbl">الصدر</span><span class="measurement-val">102</span><span class="measurement-unit">cm</span></div>
@@ -262,7 +960,7 @@
       </div>
     </div>
 
-    <!-- EXERCISE DETAIL OVERLAY -->
+    <!-- ══ EXERCISE DETAIL OVERLAY ══ -->
     <div class="ex-detail-overlay" id="exDetailOverlay">
       <div class="ex-detail-topbar">
         <button class="back-btn" onclick="closeExDetail()">← رجوع</button>
@@ -279,8 +977,8 @@
           <div class="ex-hero-level-badge"><span class="badge badge-accent" id="exLevelBadge">advanced</span></div>
         </div>
         <div class="ex-detail-info">
-          <div class="ex-detail-name" id="exDetailName"></div>
-          <div class="ex-detail-en" id="exDetailEn"></div>
+          <div class="ex-detail-name" id="exDetailName">اسم التمرين</div>
+          <div class="ex-detail-en" id="exDetailEn">Exercise Name</div>
           <div class="ex-detail-meta" id="exDetailMeta"></div>
         </div>
         <div class="history-box" id="historyBox">
@@ -307,7 +1005,7 @@
       </div>
     </div>
 
-    <!-- CHAT OVERLAY -->
+    <!-- ══ CHAT OVERLAY ══ -->
     <div class="chat-overlay" id="chatOverlay">
       <div class="chat-topbar">
         <button class="chat-back" onclick="closeChat()">←</button>
@@ -381,11 +1079,422 @@
 
 </div><!-- /app -->
 
-<script src="js/data.js"></script>
-<script src="js/nutrition.js"></script>
-<script src="js/workout.js"></script>
-<script src="js/progress.js"></script>
-<script src="js/chat.js"></script>
-<script src="js/app.js"></script>
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────────
+const meals = [
+  { id:1, name:"الفطور", time:"07:30", options:[
+    { id:"b1", label:"خيار A", cal:520, p:38, c:55, f:14, foods:["6 بيض مسلوق","شوفان 80g","موز"] },
+    { id:"b2", label:"خيار B", cal:510, p:35, c:58, f:12, foods:["بيض مخفوق 4","خبز قمح كامل","تفاح"] },
+    { id:"b3", label:"خيار C", cal:500, p:40, c:50, f:13, foods:["يوغرت يوناني 200g","شوفان 60g","توت"] },
+  ]},
+  { id:2, name:"الغداء", time:"13:00", options:[
+    { id:"l1", label:"خيار A", cal:720, p:52, c:88, f:18, foods:["دجاج مشوي 200g","أرز بني 150g","سلطة خضراء"] },
+    { id:"l2", label:"خيار B", cal:710, p:48, c:92, f:16, foods:["سمك سلمون 180g","بطاطا حلوة 200g","بروكلي"] },
+    { id:"l3", label:"خيار C", cal:730, p:55, c:82, f:20, foods:["لحم بقر 180g","أرز 140g","سبانخ"] },
+  ]},
+  { id:3, name:"وجبة ما قبل التمرين", time:"16:30", options:[
+    { id:"pw1", label:"خيار A", cal:380, p:28, c:48, f:8, foods:["بروتين شيك","موز","شوفان 40g"] },
+    { id:"pw2", label:"خيار B", cal:360, p:25, c:52, f:6, foods:["تمر 5 حبات","بروتين شيك","تفاح"] },
+  ]},
+  { id:4, name:"العشاء", time:"20:00", options:[
+    { id:"d1", label:"خيار A", cal:680, p:58, c:72, f:18, foods:["دجاج 220g","كينوا 130g","خضروات مشوية"] },
+    { id:"d2", label:"خيار B", cal:670, p:54, c:78, f:16, foods:["تونة 200g","مكرونة 130g","طماطم"] },
+    { id:"d3", label:"خيار C", cal:690, p:60, c:70, f:19, foods:["لحم ديك رومي 210g","بطاطا 180g","فاصولياء"] },
+  ]},
+  { id:5, name:"السناك", time:"22:30", options:[
+    { id:"s1", label:"خيار A", cal:280, p:24, c:20, f:10, foods:["كوتج تشيز 150g","عسل","مكسرات 20g"] },
+    { id:"s2", label:"خيار B", cal:260, p:22, c:18, f:12, foods:["كازيين بروتين","زبدة فول سوداني 15g"] },
+  ]},
+];
+
+const exercises = [
+  { id:1, nameAr:"ضغط الصدر بالبار", nameEn:"Bench Press", muscle:"Chest", sets:4, reps:"8-10", rest:120, level:"advanced", emoji:"🏋️",
+    history:[{week:1,sets:[{w:60,r:10},{w:65,r:9},{w:65,r:8},{w:60,r:8}]},{week:2,sets:[{w:65,r:10},{w:67.5,r:9},{w:67.5,r:8},{w:65,r:8}]}] },
+  { id:2, nameAr:"ضغط المائل بالدمبل", nameEn:"Incline DB Press", muscle:"Chest", sets:3, reps:"10-12", rest:90, level:"advanced", emoji:"💪",
+    history:[{week:1,sets:[{w:28,r:12},{w:30,r:11},{w:30,r:10}]},{week:2,sets:[{w:30,r:12},{w:32.5,r:11},{w:32.5,r:10}]}] },
+  { id:3, nameAr:"كابل فلاي", nameEn:"Cable Fly", muscle:"Chest", sets:3, reps:"12-15", rest:75, level:"beginner", emoji:"🔄",
+    history:[{week:1,sets:[{w:20,r:15},{w:22,r:14},{w:22,r:12}]},{week:2,sets:[{w:22,r:15},{w:24,r:13},{w:24,r:12}]}] },
+  { id:4, nameAr:"ضغط الكتف بالبار", nameEn:"OHP Barbell", muscle:"Shoulders", sets:4, reps:"8-10", rest:120, level:"advanced", emoji:"🤸",
+    history:[{week:1,sets:[{w:50,r:10},{w:52.5,r:9},{w:52.5,r:8},{w:50,r:8}]},{week:2,sets:[{w:52.5,r:10},{w:55,r:9},{w:55,r:8},{w:52.5,r:8}]}] },
+  { id:5, nameAr:"رفعات جانبية", nameEn:"Lateral Raises", muscle:"Shoulders", sets:4, reps:"12-15", rest:60, level:"beginner", emoji:"↔️",
+    history:[{week:1,sets:[{w:10,r:15},{w:10,r:14},{w:10,r:13},{w:8,r:15}]},{week:2,sets:[{w:10,r:15},{w:12,r:14},{w:12,r:13},{w:10,r:14}]}] },
+  { id:6, nameAr:"سكل كراشر", nameEn:"Skull Crusher", muscle:"Triceps", sets:3, reps:"10-12", rest:90, level:"advanced", emoji:"🔱",
+    history:[{week:1,sets:[{w:30,r:12},{w:32.5,r:11},{w:32.5,r:10}]},{week:2,sets:[{w:32.5,r:12},{w:35,r:11},{w:35,r:10}]}] },
+  { id:7, nameAr:"كابل تراي", nameEn:"Tricep Pushdown", muscle:"Triceps", sets:3, reps:"12-15", rest:60, level:"beginner", emoji:"⬇️",
+    history:[{week:1,sets:[{w:25,r:15},{w:27,r:14},{w:27,r:12}]},{week:2,sets:[{w:27,r:15},{w:30,r:14},{w:30,r:12}]}] },
+];
+
+const chartData = {
+  weight: [{d:"Jan 1",v:85},{d:"Jan 8",v:84.2},{d:"Jan 15",v:83.5},{d:"Jan 22",v:83},{d:"Feb 1",v:82.5},{d:"Feb 8",v:82}],
+  fat:    [{d:"Jan 1",v:20.1},{d:"Jan 8",v:19.5},{d:"Jan 15",v:19},{d:"Jan 22",v:18.8},{d:"Feb 1",v:18.5},{d:"Feb 8",v:18.2}],
+  muscle: [{d:"Jan 1",v:68},{d:"Jan 8",v:68.2},{d:"Jan 15",v:68.5},{d:"Jan 22",v:68.7},{d:"Feb 1",v:67.8},{d:"Feb 8",v:67.1}],
+};
+
+const chatMessages = [
+  {from:"coach", text:"عمل ممتاز اليوم! حافظ على هذا الزخم 💪", time:"10:30"},
+  {from:"me", text:"شكراً كوتش! الضغط كان ثقيل اليوم بس كملتها", time:"10:35"},
+  {from:"coach", text:"الأسبوع الجاي نرفع الوزن 2.5 كيلو على البنش", time:"10:40"},
+  {from:"me", text:"حاضر، جاهز 🔥", time:"10:42"},
+  {from:"coach", text:"لا تنسى النوم الكافي، مهم للتعافي", time:"11:00"},
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentPage = 'home';
+let selectedMealOptions = {};
+let completedExercises = [];
+let currentExercise = null;
+let exTimerInterval = null;
+let exTimerSecs = 0;
+let setData = {};
+let showingHistory = false;
+
+// ─── PAGE SWITCHING ────────────────────────────────────────────────────────────
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  currentPage = page;
+}
+
+// ─── NUTRITION ─────────────────────────────────────────────────────────────────
+function renderMeals() {
+  const list = document.getElementById('mealsList');
+  list.innerHTML = '';
+  meals.forEach(meal => {
+    const sel = selectedMealOptions[meal.id];
+    const card = document.createElement('div');
+    card.className = 'meal-card' + (sel ? ' has-selection' : '');
+    card.id = 'mealCard-' + meal.id;
+
+    const optionsHtml = meal.options.map(opt => {
+      const isSelected = sel && sel.id === opt.id;
+      return `
+        <div class="option-card ${isSelected?'selected':''}" id="opt-${opt.id}" onclick="selectOption(${meal.id},'${opt.id}')">
+          <div class="opt-top">
+            <div class="opt-radio-wrap">
+              <div class="opt-radio ${isSelected?'checked'}"><div class="opt-radio-inner"></div></div>
+              <span class="opt-name">${opt.label}</span>
+            </div>
+            <span class="opt-kcal">${opt.cal} kcal</span>
+          </div>
+          <div class="opt-macros">
+            <span class="opt-macro" style="color:var(--blue)"><b>${opt.p}g</b> P</span>
+            <span class="opt-macro" style="color:var(--accent)"><b>${opt.c}g</b> C</span>
+            <span class="opt-macro" style="color:var(--orange)"><b>${opt.f}g</b> F</span>
+          </div>
+          <div class="opt-foods">${opt.foods.map(f=>`<span class="food-tag">${f}</span>`).join('')}</div>
+        </div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="meal-header" onclick="toggleMeal(${meal.id})">
+        <div>
+          <div class="meal-info-name">${meal.name}</div>
+          <div class="meal-info-sub">🕐 ${meal.time} · ${meal.options.length} خيارات</div>
+        </div>
+        <div class="meal-right">
+          ${sel ? `<div class="meal-kcal-badge">${sel.cal} kcal</div>` : ''}
+          <div class="meal-chevron" id="chev-${meal.id}">▼</div>
+        </div>
+      </div>
+      <div class="meal-options" id="mealOpts-${meal.id}">
+        <div class="opt-section-label">اختر وجبتك</div>
+        ${optionsHtml}
+      </div>`;
+    list.appendChild(card);
+  });
+  updateMacros();
+}
+
+function toggleMeal(id) {
+  const opts = document.getElementById('mealOpts-' + id);
+  const chev = document.getElementById('chev-' + id);
+  const isOpen = opts.classList.contains('open');
+  // close all
+  document.querySelectorAll('.meal-options').forEach(o => o.classList.remove('open'));
+  document.querySelectorAll('.meal-chevron').forEach(c => c.classList.remove('open'));
+  if (!isOpen) {
+    opts.classList.add('open');
+    chev.classList.add('open');
+  }
+}
+
+function selectOption(mealId, optId) {
+  const meal = meals.find(m => m.id === mealId);
+  const opt = meal.options.find(o => o.id === optId);
+  const current = selectedMealOptions[mealId];
+  if (current && current.id === optId) {
+    delete selectedMealOptions[mealId];
+  } else {
+    selectedMealOptions[mealId] = opt;
+  }
+  renderMeals();
+  // reopen the meal
+  const opts = document.getElementById('mealOpts-' + mealId);
+  const chev = document.getElementById('chev-' + mealId);
+  opts.classList.add('open');
+  chev.classList.add('open');
+}
+
+function updateMacros() {
+  const totals = Object.values(selectedMealOptions).reduce((a,o)=>({cal:a.cal+o.cal,p:a.p+o.p,c:a.c+o.c,f:a.f+o.f}),{cal:0,p:0,c:0,f:0});
+  const maxCal=2850, maxP=164, maxC=310, maxF=79, circ=213.6;
+
+  document.getElementById('calConsumed').textContent = totals.cal;
+  document.getElementById('calBar').style.width = Math.min(totals.cal/maxCal*100,100) + '%';
+
+  function setRing(id, textId, val, max) {
+    const pct = Math.min(val/max,1);
+    document.getElementById(id).setAttribute('stroke-dasharray', `${pct*circ} ${circ}`);
+    document.getElementById(textId).textContent = val;
+  }
+  setRing('ringP','ringPText',totals.p,maxP);
+  setRing('ringC','ringCText',totals.c,maxC);
+  setRing('ringF','ringFText',totals.f,maxF);
+
+  document.getElementById('macroP').textContent = totals.p + 'g';
+  document.getElementById('macroC').textContent = totals.c + 'g';
+  document.getElementById('macroF').textContent = totals.f + 'g';
+}
+
+// ─── WORKOUT ───────────────────────────────────────────────────────────────────
+function renderExercises() {
+  const list = document.getElementById('exercisesList');
+  list.innerHTML = '';
+  const done = completedExercises;
+  exercises.forEach(ex => {
+    const isDone = done.includes(ex.id);
+    const muscleColor = ex.muscle==='Chest' ? 'var(--orange)' : ex.muscle==='Shoulders' ? 'var(--blue)' : 'var(--muted)';
+    const levelColor = ex.level==='advanced' ? 'badge-accent' : 'badge-green';
+    const card = document.createElement('div');
+    card.className = 'ex-card' + (isDone ? ' done' : '');
+    card.onclick = isDone ? null : () => openExDetail(ex.id);
+    card.innerHTML = `
+      <div class="ex-emoji">${ex.emoji}</div>
+      <div class="ex-info">
+        <div class="ex-info-top">
+          <div class="ex-name-ar">${ex.nameAr}</div>
+          ${isDone ? '<span class="ex-done-check">✓</span>' : ''}
+        </div>
+        <div class="ex-name-en">${ex.nameEn}</div>
+        <div class="ex-tags">
+          <span class="badge badge-blue">${ex.sets} sets</span>
+          <span class="badge badge-accent">${ex.reps} reps</span>
+          <span class="badge badge-muted">⏱ ${ex.rest}s</span>
+          <span class="badge" style="background:${muscleColor}20;border:1px solid ${muscleColor}40;color:${muscleColor}">${ex.muscle}</span>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+  const cnt = done.length;
+  document.getElementById('wkProgressText').textContent = cnt + '/' + exercises.length;
+  document.getElementById('wkProgressBar').style.width = (cnt/exercises.length*100) + '%';
+}
+
+function openExDetail(exId) {
+  currentExercise = exercises.find(e => e.id === exId);
+  const ex = currentExercise;
+  showingHistory = false;
+
+  document.getElementById('exDetailOverlay').classList.add('open');
+  document.getElementById('exHeroEmoji').textContent = ex.emoji;
+  document.getElementById('exDetailName').textContent = ex.nameAr;
+  document.getElementById('exDetailEn').textContent = ex.nameEn;
+  document.getElementById('exLevelBadge').textContent = ex.level;
+  document.getElementById('exLevelBadge').className = 'badge ' + (ex.level==='advanced'?'badge-accent':'badge-green');
+  document.getElementById('exRestVal').textContent = ex.rest + 's';
+
+  document.getElementById('exDetailMeta').innerHTML = `
+    <span class="badge badge-blue">${ex.sets} sets</span>
+    <span class="badge badge-accent">${ex.reps} reps</span>
+    <span class="badge badge-muted">⏱ ${ex.rest}s راحة</span>
+    <span class="badge badge-orange">${ex.muscle}</span>`;
+
+  // History
+  const lastWeek = ex.history[ex.history.length-1];
+  const histBox = document.getElementById('historyBox');
+  histBox.classList.remove('open');
+  document.getElementById('histSets').innerHTML = lastWeek.sets.map((s,i)=>`
+    <div class="hist-set">
+      <div class="hist-set-num">Set ${i+1}</div>
+      <div class="hist-set-w">${s.w}kg</div>
+      <div class="hist-set-r">${s.r} reps</div>
+    </div>`).join('');
+
+  // Sets
+  if (!setData[exId]) setData[exId] = Array.from({length:ex.sets},()=>({weight:'',reps:'',done:false}));
+  renderSetRows(ex);
+
+  // Timer
+  clearInterval(exTimerInterval);
+  exTimerSecs = 0;
+  document.getElementById('exTimer').textContent = '00:00';
+  exTimerInterval = setInterval(()=>{
+    exTimerSecs++;
+    const m = String(Math.floor(exTimerSecs/60)).padStart(2,'0');
+    const s = String(exTimerSecs%60).padStart(2,'0');
+    document.getElementById('exTimer').textContent = m+':'+s;
+  }, 1000);
+}
+
+function renderSetRows(ex) {
+  const rows = document.getElementById('setsRows');
+  const data = setData[ex.id];
+  const lastWeek = ex.history[ex.history.length-1];
+  rows.innerHTML = '';
+  data.forEach((s,i)=>{
+    const prevSet = lastWeek.sets[i];
+    const row = document.createElement('div');
+    row.className = 'set-row' + (s.done?' set-done':'');
+    row.id = 'setRow-'+ex.id+'-'+i;
+    row.innerHTML = `
+      <div class="set-num" id="setNum-${ex.id}-${i}">${i+1}</div>
+      <div class="set-input-wrap">
+        <input type="number" class="set-input${s.done?' done':''}" id="setW-${ex.id}-${i}"
+          value="${s.weight}" placeholder="${prevSet?prevSet.w:0}"
+          oninput="updateSetData(${ex.id},${i},'weight',this.value)">
+        ${prevSet?`<div class="set-prev">prev: ${prevSet.w}kg</div>`:''}
+      </div>
+      <div class="set-input-wrap">
+        <input type="number" class="set-input${s.done?' done':''}" id="setR-${ex.id}-${i}"
+          value="${s.reps}" placeholder="${prevSet?prevSet.r:ex.reps.split('-')[0]}"
+          oninput="updateSetData(${ex.id},${i},'reps',this.value)">
+        ${prevSet?`<div class="set-prev">prev: ${prevSet.r}</div>`:''}
+      </div>
+      <div class="set-check-btn${s.done?' checked':''}" id="setCheck-${ex.id}-${i}" onclick="toggleSetDone(${ex.id},${i})">
+        ${s.done?'✓':''}
+      </div>`;
+    rows.appendChild(row);
+  });
+}
+
+function updateSetData(exId, setIdx, field, val) {
+  setData[exId][setIdx][field] = val;
+}
+
+function toggleSetDone(exId, setIdx) {
+  setData[exId][setIdx].done = !setData[exId][setIdx].done;
+  renderSetRows(currentExercise);
+}
+
+function toggleHistory() {
+  showingHistory = !showingHistory;
+  document.getElementById('historyBox').classList.toggle('open', showingHistory);
+}
+
+function closeExDetail() {
+  document.getElementById('exDetailOverlay').classList.remove('open');
+  clearInterval(exTimerInterval);
+  currentExercise = null;
+}
+
+function completeExercise() {
+  if (currentExercise && !completedExercises.includes(currentExercise.id)) {
+    completedExercises.push(currentExercise.id);
+  }
+  closeExDetail();
+  renderExercises();
+}
+
+// ─── CHART ─────────────────────────────────────────────────────────────────────
+function setChart(metric, btn) {
+  document.querySelectorAll('.chart-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart(metric);
+}
+
+function renderChart(metric) {
+  const data = chartData[metric];
+  const vals = data.map(d=>d.v);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const bars = document.getElementById('chartBars');
+  bars.innerHTML = '';
+  const color = metric==='weight'?'var(--white)':metric==='fat'?'var(--orange)':'var(--blue)';
+  data.forEach((d,i)=>{
+    const h = ((d.v-min)/(max-min||1))*60+10;
+    const isLast = i===data.length-1;
+    const col = document.createElement('div');
+    col.className = 'chart-bar-col';
+    col.innerHTML = `
+      <div class="chart-bar-val">${d.v}</div>
+      <div class="chart-bar" style="height:${h}px;background:${isLast?'var(--accent)':color+'60'}"></div>
+      <div class="chart-bar-date">${d.d.split(' ')[0]}</div>`;
+    bars.appendChild(col);
+  });
+}
+
+// ─── CHAT ──────────────────────────────────────────────────────────────────────
+function renderChat() {
+  const container = document.getElementById('chatMessages');
+  container.innerHTML = '';
+  chatMessages.forEach(m=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap ' + m.from;
+    wrap.innerHTML = `
+      <div>
+        <div class="msg-bubble">${m.text}</div>
+        <div class="msg-time">${m.time}</div>
+      </div>`;
+    container.appendChild(wrap);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function openChat() {
+  document.getElementById('chatOverlay').classList.add('open');
+  renderChat();
+}
+function closeChat() {
+  document.getElementById('chatOverlay').classList.remove('open');
+}
+function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  chatMessages.push({from:'me', text, time});
+  input.value = '';
+  renderChat();
+}
+
+// ─── PROFILE ───────────────────────────────────────────────────────────────────
+function openProfile() {
+  document.getElementById('profileOverlay').classList.add('open');
+}
+function closeProfile() {
+  document.getElementById('profileOverlay').classList.remove('open');
+}
+
+// ─── SWIPE DETECTION ──────────────────────────────────────────────────────────
+let touchStartX = null;
+document.getElementById('app').addEventListener('touchstart', e=>{
+  touchStartX = e.touches[0].clientX;
+}, {passive:true});
+document.getElementById('app').addEventListener('touchend', e=>{
+  if (touchStartX !== null) {
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (diff > 80) openProfile();
+    touchStartX = null;
+  }
+}, {passive:true});
+
+// Also mouse drag for desktop testing
+let mouseStartX = null;
+document.getElementById('app').addEventListener('mousedown', e=>{ mouseStartX = e.clientX; });
+document.getElementById('app').addEventListener('mouseup', e=>{
+  if (mouseStartX !== null) {
+    const diff = e.clientX - mouseStartX;
+    if (diff > 80 && !document.getElementById('profileOverlay').classList.contains('open')) openProfile();
+    mouseStartX = null;
+  }
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+renderMeals();
+renderExercises();
+renderChart('weight');
+</script>
 </body>
 </html>
